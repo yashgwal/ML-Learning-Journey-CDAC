@@ -1,0 +1,27 @@
+import pandas as pd
+import numpy as np
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
+from sklearn.metrics import classification_report,roc_auc_score,f1_score, accuracy_score,roc_curve, confusion_matrix,RocCurveDisplay
+from sklearn.model_selection import train_test_split
+from sklearn.compose import ColumnTransformer, make_column_selector
+import os
+os.chdir('/home/pgcp-ai/MachineLearning/Datasets/')
+
+
+
+X, y = hr.drop('left', axis = 1), hr['left']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 26,stratify=hr['left'])
+
+ohe = OneHotEncoder(sparse_output = False, drop = 'first',handle_unknown='ignore').set_output(transform = 'pandas')
+transformer = ColumnTransformer(transformers=[('OHE',ohe,make_column_selector(dtype_include=object)),
+                                            ]
+                               ,remainder='passthrough',
+                               verbose_feature_names_out=False
+                               ).set_output(transform='pandas')
+X_train_trans = transformer.fit_transform(X_train)
+X_test_trans = transformer.transform(X_test)
+
+
+
+
