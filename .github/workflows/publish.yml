@@ -24,7 +24,7 @@ jobs:
           path: temp-content
           fetch-depth: 0
 
-      - name: Find and copy next folder
+      - name: Find, copy and publish next folder
         run: |
           NEXT=""
 
@@ -42,10 +42,20 @@ jobs:
             exit 0
           fi
 
-          echo "Next folder: $NEXT"
+          echo "Publishing $NEXT"
 
           cp -R "temp-content/$NEXT" .
 
-          echo ""
-          echo "Current main branch contents:"
-          ls -la
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add .
+
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 0
+          fi
+
+          git commit -m "Publish $NEXT"
+
+          git push origin main
