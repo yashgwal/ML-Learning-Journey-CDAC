@@ -3,11 +3,32 @@ name: Publish Next Day
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  test:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Print message
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Checkout content branch
+        uses: actions/checkout@v4
+        with:
+          ref: content
+          path: temp-content
+          fetch-depth: 0
+
+      - name: Show repository structure
         run: |
-          echo "Workflow is working!"
+          echo "===== MAIN BRANCH ====="
+          ls -la
+
+          echo ""
+          echo "===== CONTENT BRANCH ====="
+          ls -la temp-content
