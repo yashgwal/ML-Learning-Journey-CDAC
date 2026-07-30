@@ -24,11 +24,17 @@ jobs:
           path: temp-content
           fetch-depth: 0
 
-      - name: Show repository structure
+      - name: Find next folder
         run: |
-          echo "===== MAIN BRANCH ====="
-          ls -la
+          NEXT=""
 
-          echo ""
-          echo "===== CONTENT BRANCH ====="
-          ls -la temp-content
+          for folder in temp-content/Day*; do
+            name=$(basename "$folder")
+
+            if [ ! -d "$name" ]; then
+              NEXT=$name
+              break
+            fi
+          done
+
+          echo "Next folder is: $NEXT"
