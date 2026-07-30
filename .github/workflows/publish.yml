@@ -24,7 +24,7 @@ jobs:
           path: temp-content
           fetch-depth: 0
 
-      - name: Find next folder
+      - name: Find and copy next folder
         run: |
           NEXT=""
 
@@ -37,4 +37,15 @@ jobs:
             fi
           done
 
-          echo "Next folder is: $NEXT"
+          if [ -z "$NEXT" ]; then
+            echo "No folders left to publish."
+            exit 0
+          fi
+
+          echo "Next folder: $NEXT"
+
+          cp -R "temp-content/$NEXT" .
+
+          echo ""
+          echo "Current main branch contents:"
+          ls -la
