@@ -3,6 +3,13 @@ name: Publish Next Day
 on:
   workflow_dispatch:
 
+  schedule:
+    # 10:00 AM IST (04:30 UTC)
+    - cron: "30 4 * * *"
+
+    # 8:00 PM IST (14:30 UTC)
+    - cron: "30 14 * * *"
+
 permissions:
   contents: write
 
@@ -25,32 +32,44 @@ jobs:
           fetch-depth: 0
 
       - name: Find, copy and publish next folder
+        shell: bash
         run: |
+          set -e
+
           NEXT=""
 
+          # Find the first DayXXX folder not present in main
           for folder in temp-content/Day*; do
             name=$(basename "$folder")
 
             if [ ! -d "$name" ]; then
-              NEXT=$name
+              NEXT="$name"
               break
             fi
           done
 
           if [ -z "$NEXT" ]; then
-            echo "No folders left to publish."
+            echo "✅ All folders have already been published."
             exit 0
           fi
 
           echo "Publishing $NEXT"
 
+          # Copy only the next folder
           cp -R "temp-content/$NEXT" .
 
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Remove temporary checkout
+          git rm -r --cached temp-content >/dev/null 2>&1 || true
+          rm -rf temp-content
 
-          git add .
+          # Configure Git
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          # Stage only the published folder
+          git add "$NEXT"
+
+          # Skip if nothing changed
           if git diff --cached --quiet; then
             echo "Nothing to commit."
             exit 0
